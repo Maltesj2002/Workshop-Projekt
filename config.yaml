@@ -1,0 +1,69 @@
+# Default workshop configuration.
+#
+# For most workshops: keep this file committed, and put secrets in env vars.
+# For other brokers: edit the mqtt.* fields (or create a separate config and load it).
+
+mqtt:
+  # Configure which brokers to use.
+  # 
+  # For multiple brokers (current):
+  #   active_profiles: [local, mqtthq]
+  # 
+  # For a single broker only:
+  #   active_profiles: [local]
+  # 
+
+  # The first profile in the list is the primary (default) broker.
+  active_profiles: [local, hivemq_cloud]
+
+  # Broker profiles.
+  # Profile values override any common mqtt.* settings below.
+  profiles:
+    # Local broker (your Windows Mosquitto service)
+    local:
+      host: "127.0.0.1"
+      port: 1883
+      tls: false
+
+    # Public broker example for the MQTT HQ app.
+    # If you use a different host/port in MQTT HQ, set them here.
+    mqtthq:
+      host: "broker.mqttdashboard.com"
+      port: 1883
+      tls: false
+
+    # Existing default (HiveMQ Cloud-style).
+    # Replace host with your cluster host, e.g. "xxxxxx.s1.eu.hivemq.cloud".
+    hivemq_cloud:
+      host: "c451c402b7fb41b399936cd5727a1d3f.s1.eu.hivemq.cloud"
+      port: 8883
+      tls: true
+      username_env: "HIVEMQ_USERNAME"
+      password_env: "HIVEMQ_PASSWORD"
+
+  # Optional alternative if you connect via WebSockets instead of raw MQTT.
+  # websockets: false
+  # websocket_path: "/mqtt"
+
+  # Credentials (optional).
+  # Tip: keep secrets in env vars, and set them per-profile above.
+
+  # Client settings
+  client_id_prefix: "simcity"
+  keepalive_s: 60
+
+  # Topic defaults (projects can change these)
+  base_topic: "simulated-city"
+
+# EXAMPLE: To use multiple MQTT brokers simultaneously, uncomment and edit above.
+# Replace the single "profile: local" line with:
+#
+#   active_profiles: [local, mqtthq]
+#
+# Then in your code, access both brokers:
+#   config = load_config()
+#   # Primary (first) broker:
+#   print(config.mqtt.host)
+#   # All available brokers by name:
+#   print(config.mqtt_configs["local"].host)
+#   print(config.mqtt_configs["mqtthq"].host)
