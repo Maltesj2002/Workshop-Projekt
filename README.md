@@ -5,6 +5,18 @@ This is a template repository.
 Get started by reading [docs/setup.md](docs/setup.md).
 See [docs/overview.md](docs/overview.md) for an overview of the base module content.
 
+## Short run order (surveillance notebooks)
+
+Start notebooks in this order:
+
+1. `notebooks/agent_camera_detector.ipynb`
+2. `notebooks/agent_registry_control.ipynb`
+3. `notebooks/dashboard_surveillance.ipynb`
+4. `notebooks/agent_humans_producer.ipynb`
+
+Then run the main loop cell in all four notebooks so they run together.
+After the run, execute each cleanup cell to disconnect MQTT clients cleanly.
+
 ## Template for a project
 ---
 
