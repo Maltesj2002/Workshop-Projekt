@@ -369,13 +369,61 @@ python -m jupyterlab                # Open the notebook and RUN IT
 Once Phase 1 works, use this prompt:
 
 ```
-Good! Phase 1 works. Now implement ONLY Phase 2:
-[Paste Phase 2 description]
+Good! Phase 7 works. Now implement ONLY Phase 8:
+Phase 8 Cross-phase hardening — add registry/control center when Phase 4 is stable: create notebooks/agent_registry_control.ipynb; verify end-to-end topic authority (registry/updates as truth), dedup by event_id, and restart cold-start behavior; investigate mismatch risks between mirrored criminal_count in humans/state and authoritative registry values.
 
-The Phase 1 notebooks/code are:
-[List what was created in Phase 1]
+Plan: Phase 8 Registry/Control Hardening (DRAFT)
+Phase 8 will add only one new notebook agent, notebooks/agent_registry_control.ipynb, and keep Phase 1–7 files unchanged. The new registry agent will subscribe to camera detections (and humans/state for name cache), deduplicate by event_id, enforce strict same-step processing, and publish authoritative counts on simcity/surveillance/registry/updates. It will start in cold-start mode (empty state after restart), process only new live messages, and log mismatch warnings if mirrored criminal_count appears in humans/state and conflicts with authoritative registry values. This matches your locked protocol: registry updates are the only truth source for criminal state.
 
-Implement only Phase 2. Do NOT modify Phase 1 code unless necessary.
+Steps
+
+Create notebooks/agent_registry_control.ipynb with sections: imports/config, topic constants, runtime state, MQTT callbacks, processing loop, diagnostics, cleanup.
+Load config with load_config() and define design-locked topics under simcity/surveillance; subscribe to:
+simcity/surveillance/detections/camera (primary input)
+simcity/surveillance/humans/state (name cache + mirrored field risk checks)
+Add thread-safe callback queue ingestion (no processing in MQTT callback), consistent with prior agent patterns.
+Maintain registry state:
+criminal_registry[human_id] = {name, criminal_count}
+processed_event_ids for dedup
+names_by_human_id cache from humans/state
+Enforce strict step-window in registry processing (message.step == local_current_step, anchored to first seen step and advanced at 1 Hz), and apply dedup by event_id before any increment.
+Increment criminal_count only for detected == true detections; for each increment publish minimum schema to simcity/surveillance/registry/updates:
+step, human_id, name, criminal_count
+with qos=0, retain=False.
+Implement cold-start behavior explicitly:
+on notebook start/restart, initialize empty in-memory state
+no replay assumptions, process only live incoming messages.
+Add Phase 8 diagnostics cells to report:
+registry size/counts snapshot
+dedup counts / dropped-late / dropped-out-of-order
+mismatch warnings when mirrored criminal_count in humans/state differs from authoritative registry count.
+Keep all existing notebooks untouched in this phase (producer, detector, dashboard remain as-is).
+Verification
+
+Run python scripts/verify_setup.py.
+Run python scripts/validate_structure.py.
+Run python -m pytest.
+Manual end-to-end run:
+Start detector notebook subscription cell.
+Start new registry notebook subscription/processing cell.
+Start dashboard (optional for visual confirmation).
+Start producer simulation cell.
+Confirm:
+only registry/updates carries authoritative count evolution,
+duplicate detections for same event_id do not double-increment,
+registry restart clears in-memory state (cold-start) and resumes on new live traffic,
+mismatch warnings appear when mirrored criminal_count conflicts with registry authority.
+Decisions
+
+Name source: cache from humans/state.
+Step rule: strict same-step only.
+registry/updates schema: minimum fields only (no extra event_id).
+Mirrored-count risk handling: log warnings only in Phase 8.
+
+
+
+
+Implement only Phase 8. Do NOT modify Phase 1+2+3+4+5+6+7 code unless necessary.
 ```
 
 **Repeat this cycle for each phase.**
