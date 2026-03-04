@@ -53,9 +53,13 @@ class MqttConnector:
         self.connected.clear()
 
     def connect(self):
-        """Connect the client and start the network loop."""
+        """Connect the client and start the network loop.
+
+        Uses connect_async so the call is non-blocking and wait_for_connection
+        can enforce a timeout even when the broker is unreachable.
+        """
         try:
-            self.client.connect(self.cfg.host, self.cfg.port, keepalive=self.cfg.keepalive_s)
+            self.client.connect_async(self.cfg.host, self.cfg.port, keepalive=self.cfg.keepalive_s)
             self.client.loop_start()
         except (OSError, socket.gaierror, ssl.SSLError) as e:
             logger.error(f"Error connecting to MQTT broker: {e}")

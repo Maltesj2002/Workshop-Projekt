@@ -182,7 +182,21 @@ Start notebooks in this order:
 
 Then run the main loop cell in all four notebooks so they run together.
 
+Each surveillance loop has a 5-minute runtime failsafe. If a run exceeds 300 seconds, the loop exits automatically and prints a timeout message.
+
 After the run, execute each cleanup cell to disconnect MQTT clients cleanly.
+
+## Surveillance detection payload contract
+
+The camera detector publishes to `simcity/surveillance/detections/camera` with this payload:
+
+- `step`: simulation step number
+- `event_id`: illegal-event id
+- `human_id`: human involved in the event
+- `camera_cell`: camera position as `[cell_x, cell_y]` on the 100x100 grid
+- `detected`: `true` when the event cell matches the selected camera cell
+
+The dashboard uses `camera_cell` to render camera overlays, while the registry uses `detected` for criminal-count updates.
 
 ## Checklist Before Submitting
 

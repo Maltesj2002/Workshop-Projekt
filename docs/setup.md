@@ -182,3 +182,46 @@ You can also run notebooks in a browser by starting JupyterLab:
 ```bash
 python -m jupyterlab
 ```
+
+### Recommended start order for simulation notebooks
+
+Start subscribers before producers so early messages are not missed:
+
+1. `notebooks/dashboard_surveillance.ipynb`
+2. `notebooks/agent_camera_detector.ipynb`
+3. `notebooks/agent_registry_control.ipynb`
+4. `notebooks/agent_humans_producer.ipynb`
+
+Run cells top-to-bottom in each notebook.
+
+### Cleanup behavior with Run All
+
+Cleanup/disconnect cells are intentionally **opt-in** and use:
+
+```python
+RUN_CLEANUP = False
+```
+
+This keeps `Run All` safe for simulation startup. Set `RUN_CLEANUP = True` in the cleanup cell only when you want to stop and disconnect that notebook.
+
+Do not move cleanup to a separate notebook if you expect normal disconnect behavior. Notebook kernels are isolated, so cleanup must run in the same notebook kernel where the MQTT connection was created.
+
+### Quick start cheat sheet (cells)
+
+Use this exact order when running the surveillance simulation:
+
+1. `notebooks/dashboard_surveillance.ipynb`
+	- Click **Run All** first.
+	- The dashboard loop runs longer (`total_steps=300`) so it stays active while other notebooks start.
+2. `notebooks/agent_camera_detector.ipynb`
+	- Click **Run All** second.
+	- `camera_cell` is the camera position cell selected by the detector.
+3. `notebooks/agent_registry_control.ipynb`
+	- Click **Run All** third.
+	- The registry loop runs longer (`total_steps=300`) so it stays active while producer runs.
+4. `notebooks/agent_humans_producer.ipynb`
+	- Click **Run All** last to start publishing after subscribers are ready.
+
+This order is run-all safe and requires no manual loop-start cell.
+
+If markers are delayed, run the dashboard loop again to drain queued MQTT messages.
