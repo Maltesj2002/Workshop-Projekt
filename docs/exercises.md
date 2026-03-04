@@ -198,6 +198,17 @@ The camera detector publishes to `simcity/surveillance/detections/camera` with t
 
 The dashboard uses `camera_cell` to render camera overlays, while the registry uses `detected` for criminal-count updates.
 
+The camera detector also publishes one-step alarm messages to `simcity/surveillance/alarms/active`:
+
+- `step`: simulation step number
+- `event_id`: illegal-event id
+- `human_id`: human involved in the event
+- `camera_cell`: detecting camera position as `[cell_x, cell_y]`
+- `x` and `y`: detecting camera-cell center in local meters
+- `ttl_steps`: alarm lifetime in steps (default `1`)
+
+The dashboard renders these alarms as pink blink markers on the detecting camera position.
+
 ## Checklist Before Submitting
 
 - [ ] Each agent is a **separate notebook** (not one giant file)
